@@ -7,6 +7,8 @@ addons:
   apt:
     update:
     - true
+    packages:
+      - repo
 services:
   - docker
 before_install:
