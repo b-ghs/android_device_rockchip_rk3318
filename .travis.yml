@@ -14,7 +14,7 @@ before_install:
 before_script:
   - cd $HOME && mkdir twrp
   # download the TWRP Compressed Source Files from PhantomZone54's Release
-  - wget -q https://github.com/PhantomZone54/twrp_sources_norepo/releases/download/v3.2.3-20180830/MinimalOmniRecovery-twrp-6.0-norepo-20180830.tar.xz
+  - wget -q https://qc2.androidfilehost.com/dl/1bj3bFXihN1mqhVGkc2ccA/1578657018/673956719939830631/omni_twrp-7.1.2-20180326-norepo.tar.xz
     -O $HOME/twrp.tar.xz
   - tar -xJf twrp.tar.xz --directory $HOME/twrp/ && rm twrp.tar.xz
 script:
