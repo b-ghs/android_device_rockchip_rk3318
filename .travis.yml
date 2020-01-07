@@ -1,0 +1,53 @@
+os: linux
+dist: xenial
+sudo: required
+git:
+  depth: 3
+addons:
+  apt:
+    update:
+    - true
+services:
+  - docker
+before_install:
+  - docker pull yshalsager/cyanogenmod:latest
+before_script:
+  - cd $HOME && mkdir twrp
+  # download the TWRP Compressed Source Files from PhantomZone54's Release
+  - wget -q https://github.com/PhantomZone54/twrp_sources_norepo/releases/download/v3.2.3-20180830/MinimalOmniRecovery-twrp-6.0-norepo-20180830.tar.xz
+    -O $HOME/twrp.tar.xz
+  - tar -xJf twrp.tar.xz --directory $HOME/twrp/ && rm twrp.tar.xz
+script:
+  # Replace your $$USERNAME$$, $$REPO_URL$$, $$BRAND$$, $$DEVICE$$
+  - cd $HOME/twrp/ && git clone https://github.com/b-ghs/android_device_rockchip_rk3318.git device/Android/rk3318
+  - rm -rf bootable/recovery && git clone https://github.com/omnirom/android_bootable_recovery -b android-9.0 --depth 1 bootable/recovery
+  # Get the Modified TWRPuilder Counter Part of the Tree
+  - git clone https://github.com/TwrpBuilder/android_device_generic_twrpbuilder.git device/generic/twrpbuilder
+  - |
+    docker run --rm -i -e USER_ID=$(id -u) -e GROUP_ID=$(id -g) -v "$(pwd):/home/cmbuild/twrp/:rw,z" yshalsager/cyanogenmod bash << EOF
+    cd /home/cmbuild/twrp/
+    source build/envsetup.sh && lunch omni_rk3318-eng && mka recoveryimage
+    exit
+    EOF
+after_success:
+  - export version=$(cat bootable/recovery/variables.h | grep "define TW_MAIN_VERSION_STR" | cut -d '"' -f2)
+  - cp $HOME/twrp/out/target/product/$$DEVICE$$/recovery.img $HOME/twrp/TWRP-$version-rk3318-$(date +"%Y%m%d")-Unofficial.img
+  - cd $HOME/twrp/
+  - curl -s --upload-file TWRP-$version-rk3318-$(date +"%Y%m%d")-Unofficial.img https://transfer.sh/ && echo ""
+deploy:
+  skip_cleanup: true
+  provider: releases
+  # The api_key will be loaded from the environment variables
+  api_key: fdd2ddb03f0b3319e13294a3c43cc75d3d6f66f6
+  file_glob: true
+  file: $HOME/twrp/*.img
+  on:
+    tags: false
+    repo: b-ghs/android_device_rockchip_rk3318
+    branch: master
+branches:
+  only:
+  - master
+  except:
+  - /^(?i:untagged)-.*$/
+  - /^v\d+\.\d+(\.\d+)?(-\S*)?$/
