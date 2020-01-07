@@ -14,9 +14,9 @@ before_install:
 before_script:
   - cd $HOME && mkdir twrp
   # download the TWRP Compressed Source Files from PhantomZone54's Release
-  - wget -q https://qc2.androidfilehost.com/dl/1bj3bFXihN1mqhVGkc2ccA/1578657018/673956719939830631/omni_twrp-7.1.2-20180326-norepo.tar.xz
-    -O $HOME/twrp.tar.xz
-  - tar -xJf twrp.tar.xz --directory $HOME/twrp/ && rm twrp.tar.xz
+  - cd twrp
+  - repo init --depth=1 -u git://github.com/minimal-manifest-twrp/platform_manifest_twrp_omni.git -b twrp-5.1
+  - repo sync
 script:
   # Replace your $$USERNAME$$, $$REPO_URL$$, $$BRAND$$, $$DEVICE$$
   - cd $HOME/twrp/ && git clone https://github.com/b-ghs/android_device_rockchip_rk3318.git device/Android/rk3318
